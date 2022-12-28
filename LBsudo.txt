@@ -1,0 +1,34 @@
+#there are 9 total nodes including the center with individual weights
+
+we need the window dimensions, desired viscocity and how many iterations to do
+
+windowX
+windowY
+viscocity
+simLength
+
+2d array where elements in the array are the direction of the node and weights:
+
+nodes = [ [x, y, weight], [] ....]
+
+Initialize fluid to flow to the right in each cell
+
+Each partition in the sim should have a true or false value. True if it is part of 
+an object the fluid is moving around and false if it is empty space. So if we are in 
+a false section we dont need to do any calculation on the nodes
+
+For time in simLenght:
+    
+    permute through the paritions and calculate the conditions F_i on the i-th node for
+    
+    for parition in window:
+    
+        for node in parition:
+            
+            evaluate density and velocity
+            
+            if moving into object:
+                reverse velocity
+            
+            move node in direction of velocity
+            
