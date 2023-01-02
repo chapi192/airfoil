@@ -11,6 +11,14 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
+#our files
+import heatmap as heatMapWindow
+import Vector as vectorMapWindow
+
+#size of the vector and pressure windows
+windowX, windowY = 100, 100 
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -134,5 +142,7 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+    heatMapWindow.heatMapMain(windowX, windowY)
+    # vectorMapWindow.vectorMapMain(windowX, windowY)
     MainWindow.show()
     sys.exit(app.exec_())
