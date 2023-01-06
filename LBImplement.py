@@ -21,12 +21,12 @@ class LatticeBolztman:
         self.numberLattice = 9
 
     
-        self.xVelocities = np.array([0, 0, 1, 1, 1, 0, -1 ,-1 ,-1])
-        self.yVelocities = np.array([0, 1, 1, 0, -1, -1, -1, 0 ,1])
+        self.xvelocities = np.array([0, 0, 1, 1, 1, 0, -1 ,-1 ,-1])
+        self.yvelocities = np.array([0, 1, 1, 0, -1, -1, -1, 0 ,1])
         self.velocityWeights = np.array([4/9, 1/9, 1/36, 1/9, 1/36, 1/9, 1/36, 1/9, 1/36])
         
         #note that "F" is the current state of the model. 3 dimensions: X and Y, nodal values
-        self.F = np.ones((windowX, windowY, 9)) + np.random.randn(windowX, windowY, 9)
+        self.F = np.ones((windowX, windowY, 9)) + abs(np.random.randn(windowX, windowY, 9))
 
         
     def calculateInitial(self):
@@ -40,9 +40,9 @@ class LatticeBolztman:
         
         for x in range(0, self.numberOfXCells):
             for y in range(0, self.numberOfYCells):
-                if(distance(self.numberOfXCells/2, self.numberOfYCells/2, x, y) < 13):
+                if(distance(self.numberOfXCells/2, self.numberOfYCells/2, x, y) < np.ceil(self.numberOfYCells/3)):
                     self.obstacle[x][y] = True
-    
+
     
     def calcNext(self):
         
@@ -52,14 +52,13 @@ class LatticeBolztman:
     #     less than 5 iterations as well. This dumps the format of F: looping through the x
     #     cells and the acompanying y cells, where each x,y cell has 9 unique nodes for velocity.    
     # =============================================================================
-        
-        # print('\n   Iteration:', iteration)
-        # for i in range(0, len(F)):
-        #     for j in range(0, len(F[i])):
-        #         print(f'\n     At {i},{j}:\n', F[i][j])
+
+        # for i in range(0, len(self.F)):
+        #     for j in range(0, len(self.F[i])):
+        #         print(f'\n     At {i},{j}:\n', self.F[i][j])
     
         #streaming step. 
-        for i, cx, cy in zip(range(9), self.xVelocities, self.yVelocities):
+        for i, cx, cy in zip(range(9), self.xvelocities, self.yvelocities):
             self.F[:, :, i] = np.roll(self.F[:, :, i], cx, axis = 1)
             self.F[:, :, i] = np.roll(self.F[:, :, i], cy, axis = 0)
             
@@ -67,10 +66,28 @@ class LatticeBolztman:
         self.boundry = self.F[self.obstacle, :]
         self.boundry = self.boundry[:, [0, 5, 6, 7, 8, 1, 2, 3, 4]]
         
-        #recover density and velocities from F
+        #recover density from F
         self.rho = np.sum(self.F, 2)
-        self.velX = np.sum(self.F * self.xVelocities, 2) / self.rho
-        self.velY = np.sum(self.F * self.yVelocities, 2) / self.rho
+        
+        #cannot allow density to be a variable inside the object
+        for x in range(0, self.numberOfXCells):
+            for y in range(0, self.numberOfYCells):
+                if(self.obstacle[x][y] == True):
+                    self.rho[x][y] = 0
+    
+        
+        #recover local velocities from F
+        self.velX = np.sum(self.F * self.xvelocities, 2)
+        self.velY = np.sum(self.F * self.yvelocities, 2)
+        
+        for x in range(0, self.numberOfXCells):
+            for y in range(0, self.numberOfYCells):
+                if(self.rho[x][y] != 0):
+                    self.velX[x][y] = self.velX[x][y] / self.rho[x][y]
+                    self.velY[x][y] = self.velY[x][y] / self.rho[x][y]
+                else:
+                    self.velX[x][y] = 0
+                    self.velY[x][y] = 0
         
         #nothing moves inside the object
         self.F[self.obstacle, :] = self.boundry
@@ -79,7 +96,7 @@ class LatticeBolztman:
         
         #collision
         self.Feq = np.zeros(self.F.shape)
-        for i, cx, cy, w in zip(range(9), self.xVelocities, self.yVelocities, self.velocityWeights):
+        for i, cx, cy, w in zip(range(9), self.xvelocities, self.yvelocities, self.velocityWeights):
             self.Feq[:, :, i] = self.rho * w * (1 + 3 * (cx*self.velX + cy*self.velY) + 9 * (cx*self.velX + cy*self.velY)**2 / 2 - 3 * (self.velX**2 + self.velY**2)/2)
             
         self.F = self.F + -(1/self.tau) * (self.F - self.Feq)
@@ -87,3 +104,16 @@ class LatticeBolztman:
     # =============================================================================
     #    F is calculated so now it just needs to be displayed     
     # =============================================================================
+    
+    # def relativevel(self):
+        
+    #     for i in range(0, len(self.F)):
+    #         for j in range(0, len(self.F[i])):
+    #             print(f'\n     At {i},{j}:\n', self.F[i][j])
+    
+# LB = LatticeBolztman(5, 5)   
+
+# LB.calculateInitial()
+# LB.calcNext()
+
+# # print('\n', LB.obstacle)
