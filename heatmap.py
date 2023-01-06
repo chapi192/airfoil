@@ -32,6 +32,7 @@ class HeatmapCanvas(FigureCanvas):
 class HeatmapWindow(QDialog):
 	def __init__(self, array):
 		super().__init__()
+		self.setWindowTitle("Heatmap Test")
 		self._main = QWidget()
 		self._canvas = HeatmapCanvas(Figure(), array)
 
@@ -47,13 +48,7 @@ class HeatmapWindow(QDialog):
 		self._timer.start(dt)
 
 def heatMapMain(windowX, windowY):
-	# Check whether there is already a running QApplication
-	qapp = QApplication.instance()
-	if not qapp:
-		qapp = QApplication(sys.argv)
-
-	length, height = windowX, windowY
-	array = np.zeros((length, height))
+	array = np.zeros((windowX, windowY))
 
 	# Initializes the array as a test
 	for (idx, _) in np.ndenumerate(array):
@@ -61,9 +56,4 @@ def heatMapMain(windowX, windowY):
 		x = (2 * (idx[1] + 0.5) / array.shape[1] - 1) * 2.75
 		array[idx] = x * (x) * np.exp(-(x**2 + y**2))
 
-	heatWindow = HeatmapWindow(array)
-	heatWindow.setWindowTitle("Heatmap Test")
-	heatWindow.show()
-	heatWindow.activateWindow()
-	heatWindow.raise_()
-	sys.exit(qapp.exec())
+	return HeatmapWindow(array)

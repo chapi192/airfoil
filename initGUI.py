@@ -16,7 +16,7 @@ import heatmap as heatMapWindow
 import Vector as vectorMapWindow
 
 #size of the vector and pressure windows
-windowX, windowY = 100, 100 
+windowX, windowY = 100, 100
 
 
 class Ui_MainWindow(object):
@@ -142,7 +142,8 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    heatMapWindow.heatMapMain(windowX, windowY)
+    heatWindow = heatMapWindow.heatMapMain(windowX, windowY)
     # vectorMapWindow.vectorMapMain(windowX, windowY)
     MainWindow.show()
+    heatWindow.show()
     sys.exit(app.exec_())
