@@ -10,6 +10,13 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+import numpy as np
+
+#our files
+import data
+
+#size of the vector and pressure windows
+windowX, windowY = 100, 100
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -77,4 +84,14 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
+
+    dm = data.run(MainWindow, windowX, windowY)
+
+    # For having a consistently updating plot
+    # The timer has to be defined here for weird python scoping/runtime issues
+    dt: int = 1000  # in ms
+    timer = QtCore.QTimer()
+    data.connect(timer, dm)
+    timer.start(dt)
+
     sys.exit(app.exec_())
