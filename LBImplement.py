@@ -69,13 +69,6 @@ class LatticeBolztman:
         #recover density from F
         self.rho = np.sum(self.F, 2)
 
-        #cannot allow density to be a variable inside the object
-        # BUG: This causes a spiral to infinity somewhere
-        # for x in range(0, self.numberOfXCells):
-        #     for y in range(0, self.numberOfYCells):
-        #         if(self.obstacle[y][x] == True):
-        #             self.rho[y][x] = 0
-
         #recover local velocities from F
         self.velX = np.sum(self.F * self.xvelocities, 2)
         self.velY = np.sum(self.F * self.yvelocities, 2)
@@ -100,6 +93,12 @@ class LatticeBolztman:
             self.Feq[:, :, i] = self.rho * w * (1 + 3 * (cx*self.velX + cy*self.velY) + 9 * (cx*self.velX + cy*self.velY)**2 / 2 - 3 * (self.velX**2 + self.velY**2)/2)
 
         self.F = self.F + -(1/self.tau) * (self.F - self.Feq)
+
+        #cannot allow density to be a variable inside the object
+        for x in range(0, self.numberOfXCells):
+            for y in range(0, self.numberOfYCells):
+                if(self.obstacle[y][x] == True):
+                    self.rho[y][x] = 0
 
     # =============================================================================
     #    F is calculated so now it just needs to be displayed

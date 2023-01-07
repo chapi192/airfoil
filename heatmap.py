@@ -19,7 +19,7 @@ class HeatmapCanvas(FigureCanvas):
 
 	def plot(self, array):
 		self._image.set_data(array)
-		if self.fixed_color_bounds:
+		if not self.fixed_color_bounds:
 			self._image.set_clim(array.min(), array.max())
 		self.draw()
 
