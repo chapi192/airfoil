@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     # For having a consistently updating plot
     # The timer has to be defined here for weird python scoping/runtime issues
-    dt: int = 1000  # in ms
+    dt: int = 200  # in ms
     timer = QtCore.QTimer()
     data.connect(timer, dm)
     timer.start(dt)
