@@ -1,10 +1,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+import numpy as np
 import LBImplement
 import heatmap
 import Vector
 
-#  Created as a way to pass data between the LB class and Window/Canvas classes using a set timer
+#  Created as a way to pass data between the LB class and Canvas classes using a timer
 class DataManager():
 	def __init__(
 	    self, lb_impl: LBImplement.LatticeBolztman,
@@ -16,7 +17,11 @@ class DataManager():
 
 	def update(self):
 		self._lb_impl.calcNext()
-		self._hm_window.updateCanvas(self._lb_impl.rho)
+
+		pressure = self._lb_impl.rho
+		# Removes the pressure data where an obstacle exists
+		pressure_masked = np.ma.masked_where(self._lb_impl.obstacle, pressure)
+		self._hm_window.updateCanvas(pressure_masked)
 
 def run(MainWindow, windowX: int, windowY: int):
 	lb_impl = LBImplement.LatticeBolztman(windowX, windowY)
@@ -27,9 +32,9 @@ def run(MainWindow, windowX: int, windowY: int):
 	dm = DataManager(lb_impl, hm_window)
 
 	hm_window.show()
-	hm_window.raise_()
 
 	return dm
 
+# Ties the updating of the sim to a set interval of time
 def connect(timer: QtCore.QTimer, dm: DataManager):
 	timer.timeout.connect(dm.update)
